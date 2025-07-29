@@ -46,6 +46,7 @@ class Sale(db.Model):
     sale_price = db.Column(db.Float, nullable=False)
     sale_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     platform = db.Column(db.String(50), nullable=False)  # eBay, PWCC, etc.
+    sale_url = db.Column(db.String(500))  # URL to the sale listing
     buyer_info = db.Column(db.String(100))
     seller_info = db.Column(db.String(100))
     notes = db.Column(db.Text)
@@ -57,10 +58,26 @@ class Sale(db.Model):
             'sale_price': self.sale_price,
             'sale_date': self.sale_date.isoformat() if self.sale_date else None,
             'platform': self.platform,
+            'sale_url': self.sale_url,
             'buyer_info': self.buyer_info,
             'seller_info': self.seller_info,
             'notes': self.notes
         }
+
+def generate_platform_search_url(platform, player_name, card_set, year):
+    """Generate search URLs for different platforms"""
+    search_query = f"{player_name} {year} {card_set}".replace(" ", "+")
+    
+    platform_urls = {
+        'eBay': f"https://www.ebay.com/sch/i.html?_nkw={search_query}",
+        'PWCC': f"https://www.pwccmarketplace.com/search?q={search_query}",
+        'Heritage Auctions': f"https://sports.ha.com/c/search-results.zx?N=790+231&Ntt={search_query}",
+        'COMC': f"https://www.comc.com/Cards/Search?q={search_query}",
+        'Beckett': f"https://www.beckett.com/search/{search_query}",
+        '130Point': f"https://130point.com/sales/?q={search_query}"
+    }
+    
+    return platform_urls.get(platform, f"https://www.google.com/search?q={search_query}")
 
 # Routes
 @app.route('/')
@@ -114,6 +131,7 @@ def add_sale():
         sale_price=data['sale_price'],
         sale_date=datetime.fromisoformat(data['sale_date']) if 'sale_date' in data else datetime.utcnow(),
         platform=data['platform'],
+        sale_url=data.get('sale_url', ''),
         buyer_info=data.get('buyer_info', ''),
         seller_info=data.get('seller_info', ''),
         notes=data.get('notes', '')
@@ -130,6 +148,12 @@ def get_last_sale(card_id):
     if last_sale:
         return jsonify(last_sale.to_dict())
     return jsonify({'message': 'No sales found for this card'}), 404
+
+@app.route('/api/cards/<int:card_id>/platform-url/<platform>', methods=['GET'])
+def get_platform_url(card_id, platform):
+    card = SportsCard.query.get_or_404(card_id)
+    url = generate_platform_search_url(platform, card.player_name, card.card_set, card.year)
+    return jsonify({'url': url})
 
 if __name__ == '__main__':
     with app.app_context():
