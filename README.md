@@ -40,7 +40,7 @@ A comprehensive web application for tracking sports cards and their sales histor
    ```
 
 3. **Access the application:**
-   Open your browser and navigate to `http://localhost:5010`
+   Open your browser and navigate to `http://localhost:5000`
 
 ## API Endpoints
 
