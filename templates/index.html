@@ -19,11 +19,94 @@
     </nav>
 
     <div class="container mt-4">
+        <!-- Search Filters Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card search-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0"><i class="fas fa-search me-2"></i>Search & Filter Cards</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="searchPlayer" class="form-label">Player Name</label>
+                                <input type="text" class="form-control" id="searchPlayer" placeholder="Search by player...">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="searchSport" class="form-label">Sport</label>
+                                <select class="form-control" id="searchSport">
+                                    <option value="all">All Sports</option>
+                                    <option value="Basketball">Basketball</option>
+                                    <option value="Football">Football</option>
+                                    <option value="Baseball">Baseball</option>
+                                    <option value="Hockey">Hockey</option>
+                                    <option value="Soccer">Soccer</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="searchVariant" class="form-label">Card Variant</label>
+                                <select class="form-control" id="searchVariant">
+                                    <option value="all">All Variants</option>
+                                    <option value="Base">Base</option>
+                                    <option value="Rookie">Rookie</option>
+                                    <option value="Refractor">Refractor</option>
+                                    <option value="Prizm">Prizm</option>
+                                    <option value="Silver Prizm">Silver Prizm</option>
+                                    <option value="Autograph">Autograph</option>
+                                    <option value="Rookie Ticket Autograph">Rookie Ticket Autograph</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="searchGradingService" class="form-label">Grading Service</label>
+                                <select class="form-control" id="searchGradingService">
+                                    <option value="all">All Services</option>
+                                    <option value="PSA">PSA</option>
+                                    <option value="BGS">BGS (Beckett)</option>
+                                    <option value="SGC">SGC</option>
+                                    <option value="HGA">HGA</option>
+                                    <option value="CSG">CSG</option>
+                                    <option value="Ungraded">Ungraded</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="searchGrade" class="form-label">Grade</label>
+                                <select class="form-control" id="searchGrade">
+                                    <option value="all">All Grades</option>
+                                    <option value="10">10 (Gem Mint)</option>
+                                    <option value="9.5">9.5 (Mint+)</option>
+                                    <option value="9">9 (Mint)</option>
+                                    <option value="8.5">8.5 (NM-MT+)</option>
+                                    <option value="8">8 (Near Mint-Mint)</option>
+                                    <option value="7.5">7.5 (NM+)</option>
+                                    <option value="7">7 (Near Mint)</option>
+                                    <option value="6">6 (Excellent-Mint)</option>
+                                    <option value="5">5 (Excellent)</option>
+                                    <option value="N/A">N/A (Ungraded)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9 mb-3 d-flex align-items-end">
+                                <button type="button" class="btn btn-primary me-2" onclick="searchCards()">
+                                    <i class="fas fa-search me-1"></i>Search
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="clearSearch()">
+                                    <i class="fas fa-times me-1"></i>Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0"><i class="fas fa-list me-2"></i>Sports Cards Collection</h5>
+                        <span id="cardCount" class="badge bg-primary">0 cards</span>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -35,6 +118,8 @@
                                         <th>Year</th>
                                         <th>Card #</th>
                                         <th>Sport</th>
+                                        <th>Variant</th>
+                                        <th>Grading</th>
                                         <th>Condition</th>
                                         <th>Last Sale</th>
                                         <th>Actions</th>
@@ -110,6 +195,70 @@
                                         <option value="Good">Good</option>
                                         <option value="Fair">Fair</option>
                                         <option value="Poor">Poor</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="cardVariant" class="form-label">Card Variant</label>
+                                    <select class="form-control" id="cardVariant" required>
+                                        <option value="Base">Base</option>
+                                        <option value="Rookie">Rookie</option>
+                                        <option value="Refractor">Refractor</option>
+                                        <option value="Prizm">Prizm</option>
+                                        <option value="Silver Prizm">Silver Prizm</option>
+                                        <option value="Gold Prizm">Gold Prizm</option>
+                                        <option value="Rainbow Prizm">Rainbow Prizm</option>
+                                        <option value="Autograph">Autograph</option>
+                                        <option value="Rookie Ticket Autograph">Rookie Ticket Autograph</option>
+                                        <option value="Jersey">Jersey</option>
+                                        <option value="Patch">Patch</option>
+                                        <option value="One of One">One of One</option>
+                                        <option value="Serial Numbered">Serial Numbered</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="gradingService" class="form-label">Grading Service</label>
+                                    <select class="form-control" id="gradingService" required>
+                                        <option value="Ungraded">Ungraded</option>
+                                        <option value="PSA">PSA</option>
+                                        <option value="BGS">BGS (Beckett)</option>
+                                        <option value="SGC">SGC</option>
+                                        <option value="HGA">HGA</option>
+                                        <option value="CSG">CSG</option>
+                                        <option value="JSA">JSA</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="grade" class="form-label">Grade</label>
+                                    <select class="form-control" id="grade" required>
+                                        <option value="N/A">N/A (Ungraded)</option>
+                                        <option value="10">10 (Gem Mint)</option>
+                                        <option value="9.5">9.5 (Mint+)</option>
+                                        <option value="9">9 (Mint)</option>
+                                        <option value="8.5">8.5 (NM-MT+)</option>
+                                        <option value="8">8 (Near Mint-Mint)</option>
+                                        <option value="7.5">7.5 (NM+)</option>
+                                        <option value="7">7 (Near Mint)</option>
+                                        <option value="6.5">6.5 (EX-NM+)</option>
+                                        <option value="6">6 (Excellent-Mint)</option>
+                                        <option value="5.5">5.5 (EX+)</option>
+                                        <option value="5">5 (Excellent)</option>
+                                        <option value="4">4 (Very Good-Excellent)</option>
+                                        <option value="3">3 (Very Good)</option>
+                                        <option value="2">2 (Good)</option>
+                                        <option value="1">1 (Poor-Fair)</option>
+                                        <option value="A">A (Authentic)</option>
                                     </select>
                                 </div>
                             </div>
