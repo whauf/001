@@ -88,3 +88,101 @@ body {
 .condition-good { background-color: #fd7e14; }
 .condition-fair { background-color: #dc3545; }
 .condition-poor { background-color: #6c757d; }
+
+/* Search card styling */
+.search-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    margin-bottom: 1.5rem;
+}
+
+.search-card .card-header {
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.search-card .form-label {
+    color: white;
+    font-weight: 600;
+}
+
+.search-card .form-control,
+.search-card .form-select {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #495057;
+}
+
+.search-card .form-control:focus,
+.search-card .form-select:focus {
+    background: white;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Grade badge styling */
+.grade-gem-mint { background-color: #ffd700; color: #000; font-weight: bold; }
+.grade-mint-plus { background-color: #28a745; }
+.grade-mint { background-color: #20c997; }
+.grade-near-mint-plus { background-color: #17a2b8; }
+.grade-near-mint { background-color: #007bff; }
+.grade-good { background-color: #ffc107; color: #212529; }
+.grade-poor { background-color: #6c757d; }
+
+/* Variant badge styling */
+.variant-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.variant-base { background-color: #6c757d; }
+.variant-rookie { background-color: #28a745; }
+.variant-refractor { background-color: #17a2b8; }
+.variant-prizm { background-color: #007bff; }
+.variant-prizm-special { background-color: #ffd700; color: #000; font-weight: bold; }
+.variant-autograph { background-color: #dc3545; }
+.variant-memorabilia { background-color: #fd7e14; }
+.variant-rare { background-color: #6f42c1; }
+.variant-numbered { background-color: #20c997; }
+
+/* Card count badge */
+#cardCount {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+}
+
+/* Enhanced table styling */
+.table th {
+    white-space: nowrap;
+    font-size: 0.875rem;
+}
+
+.table td {
+    vertical-align: middle;
+    font-size: 0.875rem;
+}
+
+/* Button group spacing */
+.btn-group-sm .btn {
+    margin-right: 0.25rem;
+}
+
+.btn-group-sm .btn:last-child {
+    margin-right: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .search-card .col-md-3,
+    .search-card .col-md-9 {
+        margin-bottom: 1rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.8rem;
+    }
+    
+    .badge {
+        font-size: 0.6rem;
+    }
+}

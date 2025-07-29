@@ -1,5 +1,7 @@
 // Global variables
 let cardsData = [];
+let filteredCards = [];
+let searchTimeout;
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -7,6 +9,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Set today's date as default for sale date
     document.getElementById('saleDate').valueAsDate = new Date();
+    
+    // Add event listeners for real-time search
+    document.getElementById('searchPlayer').addEventListener('input', debounceSearch);
+    document.getElementById('searchSport').addEventListener('change', searchCards);
+    document.getElementById('searchVariant').addEventListener('change', searchCards);
+    document.getElementById('searchGradingService').addEventListener('change', searchCards);
+    document.getElementById('searchGrade').addEventListener('change', searchCards);
+    
+    // Add event listener for grading service change in add card form
+    document.getElementById('gradingService').addEventListener('change', updateGradeOptions);
 });
 
 // Load all cards
@@ -14,7 +26,9 @@ async function loadCards() {
     try {
         const response = await fetch('/api/cards');
         cardsData = await response.json();
+        filteredCards = cardsData;
         displayCards();
+        updateCardCount();
     } catch (error) {
         console.error('Error loading cards:', error);
         showAlert('Error loading cards', 'danger');
@@ -26,7 +40,7 @@ function displayCards() {
     const tbody = document.getElementById('cardsTableBody');
     tbody.innerHTML = '';
     
-    cardsData.forEach(card => {
+    filteredCards.forEach(card => {
         const row = document.createElement('tr');
         
         // Format last sale info
@@ -45,12 +59,30 @@ function displayCards() {
         // Get condition badge class
         const conditionClass = getConditionClass(card.condition);
         
+        // Format grading info
+        let gradingHtml = '';
+        if (card.grading_service === 'Ungraded') {
+            gradingHtml = '<span class="badge bg-secondary">Ungraded</span>';
+        } else {
+            const gradeClass = getGradeClass(card.grade);
+            gradingHtml = `
+                <div>
+                    <span class="badge ${gradeClass}">${card.grading_service} ${card.grade}</span>
+                </div>
+            `;
+        }
+        
+        // Format variant
+        const variantClass = getVariantClass(card.card_variant);
+        
         row.innerHTML = `
             <td><strong>${card.player_name}</strong></td>
             <td>${card.card_set}</td>
             <td>${card.year}</td>
             <td>${card.card_number}</td>
             <td>${card.sport}</td>
+            <td><span class="badge ${variantClass}">${card.card_variant}</span></td>
+            <td>${gradingHtml}</td>
             <td><span class="badge ${conditionClass}">${card.condition}</span></td>
             <td>${lastSaleHtml}</td>
             <td>
@@ -81,6 +113,38 @@ function getConditionClass(condition) {
     return `condition-badge ${conditionMap[condition] || 'bg-secondary'}`;
 }
 
+// Get CSS class for grade badge
+function getGradeClass(grade) {
+    const gradeNum = parseFloat(grade);
+    if (gradeNum >= 10) return 'grade-gem-mint';
+    if (gradeNum >= 9.5) return 'grade-mint-plus';
+    if (gradeNum >= 9) return 'grade-mint';
+    if (gradeNum >= 8.5) return 'grade-near-mint-plus';
+    if (gradeNum >= 8) return 'grade-near-mint';
+    if (gradeNum >= 7) return 'grade-good';
+    return 'grade-poor';
+}
+
+// Get CSS class for variant badge
+function getVariantClass(variant) {
+    const variantMap = {
+        'Base': 'variant-base',
+        'Rookie': 'variant-rookie',
+        'Refractor': 'variant-refractor',
+        'Prizm': 'variant-prizm',
+        'Silver Prizm': 'variant-prizm',
+        'Gold Prizm': 'variant-prizm-special',
+        'Rainbow Prizm': 'variant-prizm-special',
+        'Autograph': 'variant-autograph',
+        'Rookie Ticket Autograph': 'variant-autograph',
+        'Jersey': 'variant-memorabilia',
+        'Patch': 'variant-memorabilia',
+        'One of One': 'variant-rare',
+        'Serial Numbered': 'variant-numbered'
+    };
+    return `variant-badge ${variantMap[variant] || 'bg-info'}`;
+}
+
 // Add new card
 async function addCard() {
     const formData = {
@@ -90,6 +154,9 @@ async function addCard() {
         card_number: document.getElementById('cardNumber').value,
         sport: document.getElementById('sport').value,
         condition: document.getElementById('condition').value,
+        card_variant: document.getElementById('cardVariant').value,
+        grading_service: document.getElementById('gradingService').value,
+        grade: document.getElementById('grade').value,
         description: document.getElementById('description').value
     };
     
@@ -239,4 +306,101 @@ function showAlert(message, type) {
             alert.remove();
         }
     }, 5000);
+}
+
+// Search functionality
+async function searchCards() {
+    const playerName = document.getElementById('searchPlayer').value;
+    const sport = document.getElementById('searchSport').value;
+    const variant = document.getElementById('searchVariant').value;
+    const gradingService = document.getElementById('searchGradingService').value;
+    const grade = document.getElementById('searchGrade').value;
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (playerName) params.append('player_name', playerName);
+    if (sport && sport !== 'all') params.append('sport', sport);
+    if (variant && variant !== 'all') params.append('card_variant', variant);
+    if (gradingService && gradingService !== 'all') params.append('grading_service', gradingService);
+    if (grade && grade !== 'all') params.append('grade', grade);
+    
+    try {
+        const response = await fetch(`/api/cards/search?${params.toString()}`);
+        filteredCards = await response.json();
+        displayCards();
+        updateCardCount();
+    } catch (error) {
+        console.error('Error searching cards:', error);
+        showAlert('Error searching cards', 'danger');
+    }
+}
+
+// Debounced search for player name input
+function debounceSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(searchCards, 300);
+}
+
+// Clear all search filters
+function clearSearch() {
+    document.getElementById('searchPlayer').value = '';
+    document.getElementById('searchSport').value = 'all';
+    document.getElementById('searchVariant').value = 'all';
+    document.getElementById('searchGradingService').value = 'all';
+    document.getElementById('searchGrade').value = 'all';
+    
+    filteredCards = cardsData;
+    displayCards();
+    updateCardCount();
+}
+
+// Update card count display
+function updateCardCount() {
+    const countElement = document.getElementById('cardCount');
+    const count = filteredCards.length;
+    countElement.textContent = `${count} card${count !== 1 ? 's' : ''}`;
+}
+
+// Update grade options based on grading service
+function updateGradeOptions() {
+    const gradingService = document.getElementById('gradingService').value;
+    const gradeSelect = document.getElementById('grade');
+    
+    // Clear current options
+    gradeSelect.innerHTML = '';
+    
+    if (gradingService === 'Ungraded') {
+        gradeSelect.innerHTML = '<option value="N/A">N/A (Ungraded)</option>';
+    } else {
+        // Standard grading scale for most services
+        const gradeOptions = [
+            { value: '10', text: '10 (Gem Mint)' },
+            { value: '9.5', text: '9.5 (Mint+)' },
+            { value: '9', text: '9 (Mint)' },
+            { value: '8.5', text: '8.5 (NM-MT+)' },
+            { value: '8', text: '8 (Near Mint-Mint)' },
+            { value: '7.5', text: '7.5 (NM+)' },
+            { value: '7', text: '7 (Near Mint)' },
+            { value: '6.5', text: '6.5 (EX-NM+)' },
+            { value: '6', text: '6 (Excellent-Mint)' },
+            { value: '5.5', text: '5.5 (EX+)' },
+            { value: '5', text: '5 (Excellent)' },
+            { value: '4', text: '4 (Very Good-Excellent)' },
+            { value: '3', text: '3 (Very Good)' },
+            { value: '2', text: '2 (Good)' },
+            { value: '1', text: '1 (Poor-Fair)' }
+        ];
+        
+        // Add authentic option for certain services
+        if (['PSA', 'SGC', 'JSA'].includes(gradingService)) {
+            gradeOptions.push({ value: 'A', text: 'A (Authentic)' });
+        }
+        
+        gradeOptions.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option.value;
+            optionElement.textContent = option.text;
+            gradeSelect.appendChild(optionElement);
+        });
+    }
 }
