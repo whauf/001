@@ -33,11 +33,15 @@ function displayCards() {
         let lastSaleHtml = '<span class="text-muted">No sales</span>';
         if (card.last_sale) {
             const saleDate = new Date(card.last_sale.sale_date).toLocaleDateString();
+            const platformHtml = card.last_sale.sale_url 
+                ? `<a href="${card.last_sale.sale_url}" target="_blank" class="sale-platform-link">${card.last_sale.platform}</a>`
+                : `<span class="sale-platform">${card.last_sale.platform}</span>`;
+            
             lastSaleHtml = `
                 <div>
                     <span class="badge badge-price bg-success">$${card.last_sale.sale_price.toFixed(2)}</span>
                     <div class="small text-muted">${saleDate}</div>
-                    <div class="small text-muted">${card.last_sale.platform}</div>
+                    <div class="small">${platformHtml}</div>
                 </div>
             `;
         }
@@ -54,12 +58,27 @@ function displayCards() {
             <td><span class="badge ${conditionClass}">${card.condition}</span></td>
             <td>${lastSaleHtml}</td>
             <td>
-                <button class="btn btn-sm btn-primary me-1" onclick="openAddSaleModal(${card.id})">
-                    <i class="fas fa-dollar-sign"></i> Add Sale
-                </button>
-                <button class="btn btn-sm btn-info" onclick="viewSalesHistory(${card.id})">
-                    <i class="fas fa-history"></i> History
-                </button>
+                <div class="platform-actions">
+                    <button class="btn btn-sm btn-primary" onclick="openAddSaleModal(${card.id})">
+                        <i class="fas fa-dollar-sign"></i> Add Sale
+                    </button>
+                    <button class="btn btn-sm btn-info" onclick="viewSalesHistory(${card.id})">
+                        <i class="fas fa-history"></i> History
+                    </button>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle search-platform-btn" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="searchPlatform(${card.id}, 'eBay')">eBay</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="searchPlatform(${card.id}, 'PWCC')">PWCC</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="searchPlatform(${card.id}, 'Heritage Auctions')">Heritage Auctions</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="searchPlatform(${card.id}, 'COMC')">COMC</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="searchPlatform(${card.id}, 'Beckett')">Beckett</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="searchPlatform(${card.id}, '130Point')">130Point</a></li>
+                        </ul>
+                    </div>
+                </div>
             </td>
         `;
         
@@ -137,6 +156,7 @@ async function addSale() {
         sale_price: parseFloat(document.getElementById('salePrice').value),
         sale_date: document.getElementById('saleDate').value + 'T00:00:00',
         platform: document.getElementById('platform').value,
+        sale_url: document.getElementById('saleUrl').value,
         buyer_info: document.getElementById('buyerInfo').value,
         seller_info: document.getElementById('sellerInfo').value,
         notes: document.getElementById('saleNotes').value
@@ -186,6 +206,14 @@ async function viewSalesHistory(cardId) {
         } else {
             content.innerHTML = sales.map(sale => {
                 const saleDate = new Date(sale.sale_date).toLocaleDateString();
+                const platformHtml = sale.sale_url 
+                    ? `<a href="${sale.sale_url}" target="_blank" class="sale-platform-link">${sale.platform}</a>`
+                    : `<span class="sale-platform">${sale.platform}</span>`;
+                
+                const saleUrlHtml = sale.sale_url 
+                    ? `<div class="small mt-1"><a href="${sale.sale_url}" target="_blank" class="sale-url-link"><i class="fas fa-external-link-alt"></i> View Original Listing</a></div>`
+                    : '';
+                
                 return `
                     <div class="sale-item">
                         <div class="d-flex justify-content-between align-items-start">
@@ -194,10 +222,11 @@ async function viewSalesHistory(cardId) {
                                 <div class="sale-date">${saleDate}</div>
                                 ${sale.buyer_info ? `<div class="small">Buyer: ${sale.buyer_info}</div>` : ''}
                                 ${sale.seller_info ? `<div class="small">Seller: ${sale.seller_info}</div>` : ''}
+                                ${saleUrlHtml}
                                 ${sale.notes ? `<div class="small mt-2">${sale.notes}</div>` : ''}
                             </div>
                             <div>
-                                <span class="sale-platform">${sale.platform}</span>
+                                ${platformHtml}
                             </div>
                         </div>
                     </div>
@@ -210,6 +239,23 @@ async function viewSalesHistory(cardId) {
     } catch (error) {
         console.error('Error loading sales history:', error);
         showAlert('Error loading sales history', 'danger');
+    }
+}
+
+// Search for a card on a specific platform
+async function searchPlatform(cardId, platform) {
+    try {
+        const response = await fetch(`/api/cards/${cardId}/platform-url/${encodeURIComponent(platform)}`);
+        const data = await response.json();
+        
+        if (response.ok) {
+            window.open(data.url, '_blank');
+        } else {
+            showAlert('Error generating search URL', 'danger');
+        }
+    } catch (error) {
+        console.error('Error searching platform:', error);
+        showAlert('Error searching platform', 'danger');
     }
 }
 

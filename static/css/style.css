@@ -69,6 +69,48 @@ body {
     font-weight: 600;
 }
 
+.sale-platform-link {
+    background-color: #007bff;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s;
+}
+
+.sale-platform-link:hover {
+    background-color: #0056b3;
+    color: white;
+    text-decoration: none;
+}
+
+.platform-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-platform-btn {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.4rem;
+    line-height: 1.2;
+}
+
+.sale-url-link {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.8rem;
+}
+
+.sale-url-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
 .no-sales {
     text-align: center;
     color: #6c757d;
